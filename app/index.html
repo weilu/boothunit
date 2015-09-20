@@ -1,0 +1,53 @@
+<head>
+  <style>
+    #original {
+      display: block;
+      margin: 0 auto;
+    }
+    .filters {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      white-space: nowrap;
+      overflow-y: hidden;
+      overflow-x: scroll;
+      -webkit-overflow-scrolling: touch;
+      -webkit-tap-highlight-color: rgba(0,0,0,0);
+    }
+    .filters canvas {
+      display: inline;
+    }
+    #tmp {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <input type="file" accept="image/*" capture>
+  <canvas id="original"></canvas>
+  <canvas id="tmp"></canvas>
+  <div class="filters">
+    <canvas id="vintage"></canvas>
+    <canvas id="lomo"></canvas>
+    <canvas id="clarity"></canvas>
+    <canvas id="sinCity"></canvas>
+    <canvas id="sunrise"></canvas>
+    <canvas id="crossProcess"></canvas>
+    <canvas id="orangePeel"></canvas>
+    <canvas id="love"></canvas>
+    <canvas id="grungy"></canvas>
+    <canvas id="jarques"></canvas>
+    <canvas id="pinhole"></canvas>
+    <canvas id="oldBoot"></canvas>
+    <canvas id="glowingSun"></canvas>
+    <canvas id="hazyDays"></canvas>
+    <canvas id="herMajesty"></canvas>
+    <canvas id="nostalgia"></canvas>
+    <canvas id="hemingway"></canvas>
+    <canvas id="concentrate"></canvas>
+  <div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/camanjs/4.1.2/caman.full.js"></script>
+  <script src="lib/load-image.all.min.js"></script>
+  <script src="index.js"></script>
+<body>
