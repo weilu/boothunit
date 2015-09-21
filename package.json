@@ -4,8 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "cd app; python -m SimpleHTTPServer"
+    "start": "node server"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.13.3",
+    "mkdirp": "^0.5.1",
+    "multer": "^1.0.5"
+  }
 }

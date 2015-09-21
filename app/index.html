@@ -23,7 +23,10 @@
   </style>
 </head>
 <body>
-  <input type="file" accept="image/*" capture />
+  <form method="post" enctype="multipart/form-data">
+    <input name="photo" type="file" accept="image/*" capture />
+    <input type="submit" />
+  </form>
   <canvas id="original"></canvas>
   <canvas id="tmp"></canvas>
   <div class="filters">
