@@ -1,0 +1,52 @@
+head
+  style.
+      #original {
+      display: block;
+      margin: 0 auto;
+      }
+      .filters {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      white-space: nowrap;
+      overflow-y: hidden;
+      overflow-x: scroll;
+      -webkit-overflow-scrolling: touch;
+      -webkit-tap-highlight-color: rgba(0,0,0,0);
+      }
+      .filters canvas {
+      display: inline;
+      }
+      #tmp {
+      display: none;
+      }
+body
+  each val in messages
+    div= val
+  form(method='post', enctype='multipart/form-data')
+    input(name='photo', type='file', accept='image/*', capture='')
+    input(type='submit')
+  canvas#original
+  canvas#tmp
+  .filters
+    canvas#vintage
+    canvas#lomo
+    canvas#clarity
+    canvas#sinCity
+    canvas#sunrise
+    canvas#crossProcess
+    canvas#orangePeel
+    canvas#love
+    canvas#grungy
+    canvas#jarques
+    canvas#pinhole
+    canvas#oldBoot
+    canvas#glowingSun
+    canvas#hazyDays
+    canvas#herMajesty
+    canvas#nostalgia
+    canvas#hemingway
+    canvas#concentrate
+  script(src='https://cdnjs.cloudflare.com/ajax/libs/camanjs/4.1.2/caman.full.js')
+  script(src='/lib/load-image.all.min.js')
+  script(src='/index.js')
