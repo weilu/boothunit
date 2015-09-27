@@ -44,10 +44,22 @@ input.onchange = function () {
 }
 
 window.addEventListener('load', function(){
-    var filters = document.querySelector('.filters')
-    filters.addEventListener('click', function(e){
-      if (e.target.id) applyFilter(e.target.id)
-    }, false)
+  var filters = document.querySelector('.filters')
+  filters.addEventListener('click', function(e){
+    if (e.target.id) applyFilter(e.target.id)
+  }, false)
+
+  var upload = document.querySelector('input[type=submit]')
+  var name = document.querySelector('input[type=hidden]')
+  upload.addEventListener('click', function(e) {
+    if(input.files.length == 0) {
+      alert("Please pick a photo or take a photo first")
+      return e.preventDefault()
+    }
+    name.value = input.files[0].name
+    input.type = 'text'
+    input.value = displayEl.toDataURL()
+  })
 })
 
 function drawFilters(sourceCanvas) {

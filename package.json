@@ -9,8 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "connect-busboy": "0.0.2",
     "express": "^4.13.3",
-    "mkdirp": "^0.5.1",
-    "multer": "^1.0.5"
+    "mkdirp": "^0.5.1"
   }
 }

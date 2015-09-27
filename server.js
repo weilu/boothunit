@@ -4,10 +4,11 @@ var fs = require("fs")
 var path = require("path")
 var mkdirp = require('mkdirp')
 var express = require('express')
-var multer  = require('multer')
-var upload = multer({ storage: multer.memoryStorage() })
+var busboy = require('connect-busboy')
 
 var app = express()
+
+app.use(busboy())
 
 app.get('/*', function(req, res, next) {
   if (path.extname(req.url) == '') {
@@ -17,17 +18,35 @@ app.get('/*', function(req, res, next) {
   express.static(path.join(__dirname, 'app'))(req, res, next)
 })
 
-app.post('/*', upload.single('photo'), function (req, res) {
+app.post('/*', function (req, res) {
   var dirname = path.join(__dirname, 'uploads', req.url)
   mkdirp(dirname, function() {
-    var filename = path.join(dirname, req.file.originalname)
-    console.log(filename)
-    fs.writeFile(filename, req.file.buffer, function (err) {
-      if (err) {
-        console.log(err)
+    var photoData = null
+    var photoName = null
+    req.busboy.on('field', function(fieldname, val, fieldnameTruncated, valTruncated) {
+      switch(fieldname) {
+        case "photo":
+          photoData = new Buffer(val.replace(/^data:image\/\w+;base64,/, ""), 'base64')
+          break
+        case "name":
+          photoName = val
+          break
       }
-      res.redirect("back")
     })
+
+    req.busboy.on('finish', function() {
+      var filename = path.join(dirname, photoName)
+      console.log(filename)
+      fs.writeFile(filename, photoData, function (err) {
+        if (err) {
+          console.log(err)
+          //TODO: flash message
+        }
+        res.redirect("back")
+      })
+    })
+
+    req.pipe(req.busboy)
   })
 })
 
