@@ -23,7 +23,6 @@ app.post('/*', function (req, res) {
   req.busboy.on('error', onError)
 
   req.busboy.on('file', function(filename, file) {
-    console.log('file', filename)
     var dirname = path.join(__dirname, 'uploads', req.url)
     mkdirp(dirname, function(err) {
       if(err) return onError(err)

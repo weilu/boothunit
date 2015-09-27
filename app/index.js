@@ -16,6 +16,8 @@ input.onchange = function () {
     }
 
     loadImage(file, function(img){
+      img = loadImage.scale(img, { maxWidth: 1200, maxHeight: 1200 })
+
       var height = window.innerHeight - FILTER_HEIGHT - 100
       var width = 1.0 * img.width * height / img.height
 
