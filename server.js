@@ -18,8 +18,9 @@ app.get('/*', function(req, res, next) {
 })
 
 app.post('/*', upload.single('photo'), function (req, res) {
-  mkdirp(__dirname + req.url, function() {
-    var filename = path.join(__dirname, req.url, req.file.originalname)
+  var dirname = path.join(__dirname, 'uploads', req.url)
+  mkdirp(dirname, function() {
+    var filename = path.join(dirname, req.file.originalname)
     console.log(filename)
     fs.writeFile(filename, req.file.buffer, function (err) {
       if (err) {
