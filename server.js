@@ -9,13 +9,18 @@ var upload = multer({ storage: multer.memoryStorage() })
 
 var app = express()
 
-app.use('/', express.static(path.join(__dirname, 'app')))
-app.use('/timwei', express.static(path.join(__dirname, 'app')))
+app.get('/*', function(req, res, next) {
+  if (path.extname(req.url) == '') {
+    req.originalUrl = '/'
+    req.url = '/'
+  }
+  express.static(path.join(__dirname, 'app'))(req, res, next)
+})
 
 app.post('/*', upload.single('photo'), function (req, res) {
-  console.log(req.file)
   mkdirp(__dirname + req.url, function() {
-    var filename = __dirname + req.url + req.file.originalname
+    var filename = path.join(__dirname, req.url, req.file.originalname)
+    console.log(filename)
     fs.writeFile(filename, req.file.buffer, function (err) {
       if (err) {
         console.log(err)
