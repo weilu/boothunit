@@ -2,28 +2,25 @@ var FILTER_HEIGHT = 300
 
 var input = document.querySelector('input[type=file]')
 var dataEl = document.createElement('canvas')
+var rawEl = document.createElement('canvas')
 var displayEl = document.querySelector('#original')
+var activeFilter = null
 
 input.onchange = function () {
   var file = input.files[0]
 
   loadImage.parseMetaData(file, function (data) {
-    var options = {
-      canvas: true,
-      cover: true,
-      maxHeight: window.innerHeight - FILTER_HEIGHT - 100
-    }
-
+    var options = { canvas: true }
     if (data.exif) {
       options.orientation = data.exif.get('Orientation')
     }
 
     loadImage(file, function(img){
-      var width = img.width
-      var height = img.height
+      var height = window.innerHeight - FILTER_HEIGHT - 100
+      var width = 1.0 * img.width * height / img.height
 
       // shrink the image to fit viewport width
-      if (img.width > window.innerWidth) {
+      if (width > window.innerWidth) {
         width = window.innerWidth
         height = window.innerWidth * img.height / img.width
       }
@@ -34,8 +31,10 @@ input.onchange = function () {
       var ctx = displayEl.getContext('2d')
       ctx.drawImage(img, 0, 0, width, height)
 
-      // back up the original data
-      cloneCanvas(img, dataEl)
+      // back up the original photo for upload
+      cloneCanvas(img, rawEl)
+      // back up the downsized original photo for applying filters
+      cloneCanvas(displayEl, dataEl)
 
       drawFilters(displayEl)
 
@@ -56,11 +55,42 @@ window.addEventListener('load', function(){
       alert("Please pick a photo or take a photo first")
       return e.preventDefault()
     }
-    name.value = input.files[0].name
-    input.type = 'text'
-    input.value = displayEl.toDataURL()
+
+    if (activeFilter == null) {
+      uploadCanvasData(rawEl.toDataURL())
+    } else {
+      // re-apply current active filter on the original file to get best resolution
+      var tmpSelector = "#upload"
+      cloneCanvas(rawEl, document.querySelector(tmpSelector))
+      Caman(tmpSelector, function() {
+        this.reloadCanvasData()
+        this[activeFilter]().render(function() {
+          uploadCanvasData(this.toBase64())
+          activeFilter = null // reset filter
+        })
+      })
+    }
+
+    return e.preventDefault()
   })
 })
+
+function uploadCanvasData(base64Data) {
+  var xhr = new XMLHttpRequest()
+  var formData = new FormData()
+  var blob = dataURItoBlob(base64Data)
+  formData.append(input.files[0].name, blob)
+  xhr.open('POST', document.location.pathname, true)
+  xhr.onload = function(e) {
+    if (this.status == 200) {
+      console.log('success')
+      window.location.reload()
+    } else {
+      alert('Failed to upload photo. ' + this.status)
+    }
+  }
+  xhr.send(formData)
+}
 
 function drawFilters(sourceCanvas) {
   var width = FILTER_HEIGHT
@@ -90,12 +120,13 @@ function drawFilters(sourceCanvas) {
 
 function applyFilter(filter) {
   var tmpSelector = "#tmp"
-  cloneCanvas(dataEl, document.querySelector(tmpSelector))
+  cloneCanvas(displayEl, document.querySelector(tmpSelector))
 
   Caman(tmpSelector, function() {
     this.reset()
     this[filter]().render(function() {
       cloneCanvas(document.querySelector(tmpSelector), displayEl)
+      activeFilter = filter
     })
   })
 }
@@ -107,3 +138,21 @@ function cloneCanvas(src, dest) {
   destCxt.drawImage(src, 0, 0)
 }
 
+function dataURItoBlob(dataURI) {
+  // convert base64 to raw binary data held in a string
+  // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
+  var byteString = atob(dataURI.split(',')[1]);
+
+  // separate out the mime component
+  var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+  // write the bytes of the string to an ArrayBuffer
+  var ab = new ArrayBuffer(byteString.length);
+  var dw = new DataView(ab);
+  for(var i = 0; i < byteString.length; i++) {
+    dw.setUint8(i, byteString.charCodeAt(i));
+  }
+
+  // write the ArrayBuffer to a blob, and you're done
+  return new Blob([ab], {type: mimeString});
+}
