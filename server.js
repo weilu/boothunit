@@ -27,7 +27,7 @@ app.post('/*', function (req, res) {
     mkdirp(dirname, function(err) {
       if(err) return onError(err)
 
-      var p = path.join(dirname, filename)
+      var p = path.join(dirname, new Date().getTime() + "_" + filename)
       var outStream = fs.createWriteStream(p)
 
       outStream.on('error', onError)
