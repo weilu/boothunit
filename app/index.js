@@ -42,6 +42,7 @@ input.onchange = function () {
 
       show('input[type=submit]')
       hide('input[type=file]')
+      watermark()
     }, options)
   })
 }
@@ -140,8 +141,16 @@ function applyFilter(filter) {
     this[filter]().render(function() {
       cloneCanvas(document.querySelector(tmpSelector), displayEl)
       activeFilter = filter
+      watermark()
     })
   })
+}
+
+function watermark() {
+  var ctx = displayEl.getContext('2d')
+  ctx.font = "12px monospace"
+  ctx.fillText("Tim & Wei's Wedding", displayEl.width - 150, displayEl.height - 22);
+  ctx.fillText("2015-10-10", displayEl.width - 85, displayEl.height - 10);
 }
 
 function cloneCanvas(src, dest) {
