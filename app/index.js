@@ -59,7 +59,7 @@ window.addEventListener('load', function(){
     }
 
     if (activeFilter == null) {
-      uploadCanvasData(rawEl.toDataURL())
+      uploadCanvasData(rawEl.toDataURL("image/jpeg"))
     } else {
       // re-apply current active filter on the original file to get best resolution
       var tmpSelector = "#upload"
@@ -67,7 +67,7 @@ window.addEventListener('load', function(){
       Caman(tmpSelector, function() {
         this.reloadCanvasData()
         this[activeFilter]().render(function() {
-          uploadCanvasData(this.toBase64())
+          uploadCanvasData(this.toBase64("jpeg"))
           activeFilter = null // reset filter
         })
       })
