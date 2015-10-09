@@ -122,7 +122,7 @@ function drawFilters(sourceCanvas) {
 
 function applyFilter(filter) {
   var tmpSelector = "#tmp"
-  cloneCanvas(displayEl, document.querySelector(tmpSelector))
+  cloneCanvas(dataEl, document.querySelector(tmpSelector))
 
   Caman(tmpSelector, function() {
     this.reset()
