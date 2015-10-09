@@ -40,6 +40,9 @@ input.onchange = function () {
 
       drawFilters(displayEl)
 
+      // show the print button
+      document.querySelector('input[type=submit]').className = ""
+      document.querySelector('input[type=file]').className = "hidden"
     }, options)
   })
 }

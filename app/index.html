@@ -17,20 +17,32 @@
     .filters canvas {
       display: inline;
     }
-    #tmp, #upload {
+    .hidden {
       display: none;
+    }
+    input {
+      display: block;
+      margin: 0 auto;
+    }
+    input[type=file] {
+      margin: 400px auto;
+    }
+    input[type=submit] {
+      font-size: large;
+      width: 200px;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <form method="post" enctype="multipart/form-data">
+  <form id="booth" method="post" enctype="multipart/form-data">
     <input name="photo" type="file" accept="image/*" capture />
     <input name="name" type="hidden" />
-    <input type="submit" value="print" />
   </form>
   <canvas id="original"></canvas>
-  <canvas id="tmp"></canvas>
-  <canvas id="upload"></canvas>
+  <canvas id="tmp" class="hidden"></canvas>
+  <canvas id="upload" class="hidden"></canvas>
+  <input type="submit" value="print" class="hidden" form="booth" />
   <div class="filters">
     <canvas id="lomo"></canvas>
     <canvas id="clarity"></canvas>
