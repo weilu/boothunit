@@ -40,9 +40,8 @@ input.onchange = function () {
 
       drawFilters(displayEl)
 
-      // show the print button
-      document.querySelector('input[type=submit]').className = ""
-      document.querySelector('input[type=file]').className = "hidden"
+      show('input[type=submit]')
+      hide('input[type=file]')
     }, options)
   })
 }
@@ -80,6 +79,14 @@ window.addEventListener('load', function(){
   })
 })
 
+function hide(selector) {
+  document.querySelector(selector).className = "hidden"
+}
+
+function show(selector) {
+  document.querySelector(selector).className = ""
+}
+
 function uploadCanvasData(base64Data) {
   var xhr = new XMLHttpRequest()
   var formData = new FormData()
@@ -88,8 +95,9 @@ function uploadCanvasData(base64Data) {
   xhr.open('POST', document.location.pathname, true)
   xhr.onload = function(e) {
     if (this.status == 200) {
-      console.log('success')
-      window.location.reload()
+      hide('input[type=submit]')
+      hide('.filters')
+      show('#flash')
     } else {
       alert('Failed to upload photo. ' + this.status)
     }
