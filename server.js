@@ -2,6 +2,8 @@
 
 var fs = require("fs")
 var path = require("path")
+var sys = require('sys')
+var exec = require('child_process').exec
 var mkdirp = require('mkdirp')
 var express = require('express')
 var busboy = require('connect-busboy')
@@ -31,14 +33,27 @@ app.post('/*', function (req, res) {
       var outStream = fs.createWriteStream(p)
 
       outStream.on('error', onError)
-      outStream.on('finish', function(){
-        console.log('saved file to', p)
-        res.sendStatus(200);
-      })
+      outStream.on('finish', onUploadSuccess)
 
       file.pipe(outStream)
+
+      function onUploadSuccess() {
+        console.log('saved file to', p)
+        var cmd = "lp -d Canon_CP910 " + p
+        exec(cmd, function (error, stdout, stderr) {
+          if (stdout) sys.print('stdout: ' + stdout)
+          if (stderr) sys.print('stderr: ' + stderr)
+
+          if (error !== null) {
+            return onError(error)
+          }
+
+          res.sendStatus(200)
+        })
+      }
     })
   })
+
 
   function onError(err) {
     res.sendStatus(500)
