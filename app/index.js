@@ -42,7 +42,7 @@ input.onchange = function () {
 
       show('input[type=submit]')
       hide('input[type=file]')
-      watermark()
+      watermark(displayEl)
     }, options)
   })
 }
@@ -60,6 +60,11 @@ window.addEventListener('load', function(){
       alert("Please pick a photo or take a photo first")
       return e.preventDefault()
     }
+
+    var ctx = rawEl.getContext('2d')
+    ctx.font = "20px monospace"
+    ctx.fillText("Tim & Wei's Wedding", rawEl.width - 310, rawEl.height - 86);
+    ctx.fillText("2015-10-10", rawEl.width - 202, rawEl.height - 62);
 
     if (activeFilter == null) {
       uploadCanvasData(rawEl.toDataURL("image/jpeg"))
@@ -141,16 +146,16 @@ function applyFilter(filter) {
     this[filter]().render(function() {
       cloneCanvas(document.querySelector(tmpSelector), displayEl)
       activeFilter = filter
-      watermark()
+      watermark(displayEl)
     })
   })
 }
 
-function watermark() {
-  var ctx = displayEl.getContext('2d')
+function watermark(canvas) {
+  var ctx = canvas.getContext('2d')
   ctx.font = "12px monospace"
-  ctx.fillText("Tim & Wei's Wedding", displayEl.width - 150, displayEl.height - 22);
-  ctx.fillText("2015-10-10", displayEl.width - 85, displayEl.height - 10);
+  ctx.fillText("Tim & Wei's Wedding", canvas.width - 160, canvas.height - 28);
+  ctx.fillText("2015-10-10", canvas.width - 95, canvas.height - 16);
 }
 
 function cloneCanvas(src, dest) {
