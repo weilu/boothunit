@@ -61,10 +61,7 @@ window.addEventListener('load', function(){
       return e.preventDefault()
     }
 
-    var ctx = rawEl.getContext('2d')
-    ctx.font = "20px monospace"
-    ctx.fillText("Tim & Wei's Wedding", rawEl.width - 310, rawEl.height - 86);
-    ctx.fillText("2015-10-10", rawEl.width - 202, rawEl.height - 62);
+    watermark(rawEl, 20, 310, 86, 202, 62)
 
     if (activeFilter == null) {
       uploadCanvasData(rawEl.toDataURL("image/jpeg"))
@@ -151,11 +148,28 @@ function applyFilter(filter) {
   })
 }
 
-function watermark(canvas) {
+function watermark(canvas, fontSize, line1X, line1Y, line2X, line2Y) {
+  fontSize = fontSize || 12
+  line1X = line1X || 160
+  line1Y = line1Y || 28
+  line2X = line2X || 95
+  line2Y = line2Y || 16
+
   var ctx = canvas.getContext('2d')
-  ctx.font = "12px monospace"
-  ctx.fillText("Tim & Wei's Wedding", canvas.width - 160, canvas.height - 28);
-  ctx.fillText("2015-10-10", canvas.width - 95, canvas.height - 16);
+  ctx.shadowColor = "black"
+  ctx.shadowOffsetX = 0
+  ctx.shadowOffsetY = 0
+  ctx.shadowBlur = 10
+  ctx.font = fontSize + "px monospace"
+
+  var line1 = ["Tim & Wei's Wedding", canvas.width - line1X, canvas.height - line1Y]
+  var line2 = ["2015-10-10", canvas.width - line2X, canvas.height - line2Y]
+  ctx.fillText.apply(ctx, line1)
+  ctx.fillText.apply(ctx, line2)
+  ctx.shadowBlur = 0
+  ctx.fillStyle = "white"
+  ctx.fillText.apply(ctx, line1)
+  ctx.fillText.apply(ctx, line2)
 }
 
 function cloneCanvas(src, dest) {
