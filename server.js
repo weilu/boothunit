@@ -29,6 +29,7 @@ app.post('/*', function (req, res) {
     mkdirp(dirname, function(err) {
       if(err) return onError(err)
 
+      filename = filename.replace(/\s/g, '_')
       var p = path.join(dirname, new Date().getTime() + "_" + filename)
       var outStream = fs.createWriteStream(p)
 
