@@ -12,5 +12,8 @@
     "connect-busboy": "0.0.2",
     "express": "^4.13.3",
     "mkdirp": "^0.5.1"
+  },
+  "engines": {
+    "node": "4.2.1"
   }
 }
