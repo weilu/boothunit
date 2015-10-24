@@ -7,6 +7,9 @@ var exec = require('child_process').exec
 var mkdirp = require('mkdirp')
 var express = require('express')
 var busboy = require('connect-busboy')
+var WebSocketServer = require("ws").Server
+var websocket = require('websocket-stream')
+var printClient = null
 
 var app = express()
 
@@ -25,36 +28,8 @@ app.post('/*', function (req, res) {
   req.busboy.on('error', onError)
 
   req.busboy.on('file', function(filename, file) {
-    var dirname = path.join(__dirname, 'uploads', req.url)
-    mkdirp(dirname, function(err) {
-      if(err) return onError(err)
-
-      filename = filename.replace(/\s/g, '_')
-      var p = path.join(dirname, new Date().getTime() + "_" + filename)
-      var outStream = fs.createWriteStream(p)
-
-      outStream.on('error', onError)
-      outStream.on('finish', onUploadSuccess)
-
-      file.pipe(outStream)
-
-      function onUploadSuccess() {
-        console.log('saved file to', p)
-        var cmd = "lp -d Canon_CP910 " + p
-        exec(cmd, function (error, stdout, stderr) {
-          if (stdout) sys.print('stdout: ' + stdout)
-          if (stderr) sys.print('stderr: ' + stderr)
-
-          if (error !== null) {
-            return onError(error)
-          }
-
-          res.sendStatus(200)
-        })
-      }
-    })
+    file.pipe(printClient)
   })
-
 
   function onError(err) {
     res.sendStatus(500)
@@ -68,3 +43,25 @@ var server = app.listen(process.env.PORT || 8000, function () {
   console.log('Serving on http://%s:%s', host, port)
 })
 
+var wss = new WebSocketServer({server: server})
+console.log("websocket server created")
+
+wss.on("connection", function(ws) {
+  console.log("ws connection")
+
+  ws.on("message", function(message) {
+    console.log("ws message")
+    if(message !== process.env.SECRET) { // poor man's auth
+      return ws.close()
+    }
+
+    printClient = websocket(ws)
+    printClient.on('error', function(err) { console.log(err) })
+    printClient.on('finish', function() { console.log('success!') })
+    console.log("printClient assigned")
+  })
+
+  ws.on("close", function() {
+    console.log("ws close")
+  })
+})
