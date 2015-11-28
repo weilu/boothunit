@@ -7,12 +7,20 @@ var websocket = require('websocket-stream')
 function poll() {
   var ws = new WebSocket('ws://' + process.env.WS_HOST)
   var stream = websocket(ws)
-  var outStream = fs.createWriteStream(process.cwd() + '/foobar'+new Date()+'.jpg')
+  var tmpfile = './uploads/open_fd_do_not_modify.jpg'
+  var outStream = fs.createWriteStream(tmpfile)
   outStream.on('error', function(err) { console.error('Error', err) })
   outStream.on('finish', function() {
-    console.log('success!')
-    //TODO: send to printer
-    setTimeout(poll, 500)
+    var newfile = './uploads/' + new Date().getTime() + '.jpg'
+    fs.rename(tmpfile, newfile, function(err) {
+      if (err) {
+        return console.errror(err)
+      }
+      console.log('success!')
+      //TODO: send to printer
+      //TODO: after print delete file
+      setTimeout(poll, 500)
+    })
   })
 
   stream.pipe(outStream)
@@ -21,6 +29,7 @@ function poll() {
     console.log('ws open')
     ws.send(process.env.SECRET)
   })
+}
 
   // var dirname = path.join(__dirname, 'uploads', req.url)
   // mkdirp(dirname, function(err) {

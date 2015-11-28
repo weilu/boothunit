@@ -26,7 +26,7 @@ app.get('/*', function(req, res, next) {
 app.post('/*', function (req, res) {
 
   req.busboy.on('error', onError)
-
+  // TODO: upload to s3
   req.busboy.on('file', function(filename, file) {
     file.pipe(printClient)
   })
