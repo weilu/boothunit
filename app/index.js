@@ -3,7 +3,7 @@ var FILTER_HEIGHT = 300
 var input = document.querySelector('input[type=file]')
 var dataEl = document.createElement('canvas')
 var rawEl = document.createElement('canvas')
-var displayEl = document.querySelector('#original')
+var displayEl = document.querySelector('.original')
 var activeFilter = null
 
 input.onchange = function () {
@@ -40,7 +40,7 @@ input.onchange = function () {
 
       drawFilters(displayEl)
 
-      show('input[type=submit]')
+      show('button')
       hide('input[type=file]')
       watermark(displayEl)
     }, options)
@@ -53,7 +53,7 @@ window.addEventListener('load', function(){
     if (e.target.id) applyFilter(e.target.id)
   }, false)
 
-  var upload = document.querySelector('input[type=submit]')
+  var upload = document.querySelector('button')
   var name = document.querySelector('input[type=hidden]')
   upload.addEventListener('click', function(e) {
     if(input.files.length == 0) {
@@ -98,7 +98,7 @@ function uploadCanvasData(base64Data) {
   xhr.open('POST', document.location.pathname, true)
   xhr.onload = function(e) {
     if (this.status == 200) {
-      hide('input[type=submit]')
+      hide('button')
       hide('.filters')
       show('#flash')
     } else {
