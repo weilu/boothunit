@@ -8,7 +8,9 @@ var mkdirp = require('mkdirp')
 var express = require('express')
 var busboy = require('connect-busboy')
 var WebSocketServer = require("ws").Server
-var websocket = require('websocket-stream')
+var WebSocket = require('ws')
+var AWS = require('aws-sdk')
+var s3Stream = require('s3-upload-stream')(new AWS.S3())
 var printClient = null
 
 var app = express()
@@ -24,16 +26,41 @@ app.get('/*', function(req, res, next) {
 })
 
 app.post('/*', function (req, res) {
+  req.busboy.on('file', function(filename, file) {
+    var upload = s3Stream.upload({
+      Bucket: "boothunit",
+      ACL: "public-read",
+      Key: new Date().getTime() + "_" + filename
+    })
+
+    upload.on('error', onError)
+
+    // TODO: progress feedback
+    upload.on('part', function (details) {
+      console.log(details)
+    })
+
+    // success
+    upload.on('uploaded', function (details) {
+      console.log(details);
+      // print
+      if (printClient == null) {
+        console.error('Are you sure the print client is running?')
+        return res.sendStatus(500)
+      }
+      printClient.send(details.Location)
+      // notify client
+      res.sendStatus(200)
+    })
+
+    file.pipe(upload)
+  })
 
   req.busboy.on('error', onError)
-  // TODO: upload to s3
-  req.busboy.on('file', function(filename, file) {
-    file.pipe(printClient)
-  })
 
   function onError(err) {
     res.sendStatus(500)
-    console.log(err)
+    console.error(err)
   }
 })
 
@@ -50,12 +77,12 @@ wss.on("connection", function(ws) {
   console.log("ws connection")
 
   ws.on("message", function(message) {
-    console.log("ws message")
     if(message !== process.env.SECRET) { // poor man's auth
+      console.log("invalid auth credentials")
       return ws.close()
     }
 
-    printClient = websocket(ws)
+    printClient = ws
     printClient.on('error', function(err) { console.log(err) })
     printClient.on('finish', function() { console.log('success!') })
     console.log("printClient assigned")

@@ -1,33 +1,38 @@
 // I'm the print client
 
+var https = require('https')
 var fs = require('fs')
 var WebSocket = require('ws')
-var websocket = require('websocket-stream')
 
 function poll() {
   var ws = new WebSocket('ws://' + process.env.WS_HOST)
-  var stream = websocket(ws)
-  var tmpfile = './uploads/open_fd_do_not_modify.jpg'
-  var outStream = fs.createWriteStream(tmpfile)
-  outStream.on('error', function(err) { console.error('Error', err) })
-  outStream.on('finish', function() {
-    var newfile = './uploads/' + new Date().getTime() + '.jpg'
-    fs.rename(tmpfile, newfile, function(err) {
-      if (err) {
-        return console.errror(err)
-      }
-      console.log('success!')
-      //TODO: send to printer
-      //TODO: after print delete file
-      setTimeout(poll, 500)
-    })
-  })
-
-  stream.pipe(outStream)
 
   ws.on('open', function() {
     console.log('ws open')
     ws.send(process.env.SECRET)
+  })
+
+  ws.on('message', function(url) {
+    //TODO: validate url
+    var request = https.get(url, function(response) {
+
+      var filename = 'uploads/' + url.substring(url.lastIndexOf('/') + 1)
+      var outStream = fs.createWriteStream(filename)
+      outStream.on('finish', function() {
+        console.log('success!')
+        //TODO: send to printer
+        //TODO: after print delete file
+        setTimeout(poll, 500)
+      })
+      outStream.on('error', function(err) {
+        console.error(err)
+      })
+
+      response.pipe(outStream);
+
+    }).on('error', function(e) {
+      console.error(e)
+    })
   })
 }
 
