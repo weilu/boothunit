@@ -30,6 +30,7 @@ app.post('/*', function (req, res) {
     var upload = s3Stream.upload({
       Bucket: "boothunit",
       ACL: "public-read",
+      ContentType: "image/jpeg",
       Key: new Date().getTime() + "_" + filename
     })
 
