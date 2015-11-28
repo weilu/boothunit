@@ -1,66 +1,42 @@
 <head>
-  <style>
-    #original {
-      display: block;
-      margin: 0 auto;
-    }
-    .filters {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      white-space: nowrap;
-      overflow-y: hidden;
-      overflow-x: scroll;
-      -webkit-overflow-scrolling: touch;
-      -webkit-tap-highlight-color: rgba(0,0,0,0);
-    }
-    .filters canvas {
-      display: inline;
-    }
-    .hidden {
-      display: none;
-    }
-    input {
-      display: block;
-      margin: 0 auto;
-    }
-    input[type=file] {
-      margin: 400px auto;
-    }
-    input[type=submit] {
-      font-size: large;
-      width: 200px;
-      margin-top: 20px;
-    }
-    #flash {
-      margin-top: 20px;
-      text-align: center;
-      font-size: large;
-      font-family: monospace;
-    }
-  </style>
+  <link rel="stylesheet" href="/lib/styles.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 </head>
 <body>
-  <form id="booth" method="post" enctype="multipart/form-data">
-    <input name="photo" type="file" accept="image/*" capture />
-    <input name="name" type="hidden" />
-  </form>
-  <canvas id="original"></canvas>
-  <canvas id="tmp" class="hidden"></canvas>
-  <canvas id="upload" class="hidden"></canvas>
-  <input type="submit" value="print" class="hidden" form="booth" />
-  <div id="flash" class="hidden">We've sent your photo to the printer. Go pick it up!</div>
-  <div class="filters">
-    <canvas id="lomo"></canvas>
-    <canvas id="clarity"></canvas>
-    <canvas id="sunrise"></canvas>
-    <canvas id="crossProcess"></canvas>
-    <canvas id="jarques"></canvas>
-    <canvas id="pinhole"></canvas>
-    <canvas id="oldBoot"></canvas>
-    <canvas id="glowingSun"></canvas>
-    <canvas id="hazyDays"></canvas>
-    <canvas id="concentrate"></canvas>
+  <div class="frame-top">
+    <div class="action-bar">
+      <div class="action-bar-element" style="width: 50%;">
+        <a class="btn full-width" href="/temp-start.html">Back</a>
+      </div>
+      <div class="action-bar-element" style="width: 50%;">
+        <a class="btn btn-clear full-width" href="/copies.html">Next!</a>
+      </div>
+    </div>
+  </div>
+  <div class="frame-main cater-frame-top cater-frame-bottom">
+    <form id="booth" method="post" enctype="multipart/form-data">
+      <input name="photo" type="file" accept="image/*" capture />
+      <input name="name" type="hidden" />
+    </form>
+    <canvas id="original"></canvas>
+    <canvas id="tmp" class="hidden"></canvas>
+    <canvas id="upload" class="hidden"></canvas>
+    <input type="submit" value="print" class="hidden" form="booth" />
+    <div id="flash" class="hidden">We've sent your photo to the printer. Go pick it up!</div>
+  </div>
+  <div class="frame-bottom">
+    <div class="filters">
+      <canvas id="lomo"></canvas>
+      <canvas id="clarity"></canvas>
+      <canvas id="sunrise"></canvas>
+      <canvas id="crossProcess"></canvas>
+      <canvas id="jarques"></canvas>
+      <canvas id="pinhole"></canvas>
+      <canvas id="oldBoot"></canvas>
+      <canvas id="glowingSun"></canvas>
+      <canvas id="hazyDays"></canvas>
+      <canvas id="concentrate"></canvas>
+    </div>
   </div>
 
   <script src="/lib/caman.full.min.js"></script>

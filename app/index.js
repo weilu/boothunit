@@ -1,4 +1,4 @@
-var FILTER_HEIGHT = 300
+var FILTER_HEIGHT = 90
 
 var input = document.querySelector('input[type=file]')
 var dataEl = document.createElement('canvas')

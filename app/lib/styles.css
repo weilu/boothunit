@@ -1,0 +1,212 @@
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,700,300,600|Roboto:400,300,700,500|Lemon);
+/**
+ * RESETS & BASICS
+ */
+* {
+  box-sizing: border-box; }
+
+html, body {
+  width: 100%;
+  height: 100%; }
+
+html {
+  font-size: 62.5%; }
+
+body {
+  font-size: 1.4rem; }
+
+/* =14px */
+a {
+  text-decoration: none; }
+
+body {
+  margin: 0;
+  font-family: Roboto, Helvetica, 'Helvetica Neue', Arial, sans-serif;
+  background-color: #23282D;
+  background-image: url(/assets/noise-o03.png); }
+
+/**
+ * LAYOUT/FRAMING
+ */
+.frame-top {
+  position: fixed;
+  top: 0;
+  width: 100%; }
+
+.frame-main {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto; }
+  .frame-main.cater-frame-top {
+    padding-top: 52px; }
+  .frame-main.cater-frame-bottom {
+    padding-bottom: 90px; }
+
+.frame-bottom {
+  position: fixed;
+  background: rgba(255, 255, 255, 0.1);
+  bottom: 0;
+  left: 0;
+  right: 0; }
+
+/**
+ * OTHER THINGS
+ */
+.action-bar {
+  background-color: #FF0047;
+  overflow: auto;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  background-image: url(/assets/noise-o01.png); }
+  .action-bar .action-bar-element {
+    float: left;
+    padding: 5px; }
+
+.btn {
+  display: block;
+  font-size: 2rem;
+  border-radius: 3px;
+  text-align: center;
+  color: white;
+  padding: 8px;
+  font-weight: 400;
+  border: solid 1px transparent;
+  text-shadow: 0 1px rgba(0, 0, 0, 0.1); }
+  .btn.btn-primary {
+    background-color: #FF1455;
+    box-shadow: 0 6px 0 -3px rgba(0, 0, 0, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 2px rgba(0, 0, 0, 0.1); }
+  .btn.btn-clear {
+    color: white;
+    border: solid 1px rgba(255, 255, 255, 0.9);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1); }
+    .btn.btn-clear:hover, .btn.btn-clear:active {
+      background-color: rgba(255, 255, 255, 0.1); }
+
+.filters {
+  height: 90px;
+  white-space: nowrap;
+  overflow-y: hidden;
+  overflow-x: scroll;
+  -webkit-overflow-scrolling: touch;
+  -webkit-tap-highlight-color: transparent;
+  font-size: 0; }
+
+.side-padder {
+  padding-left: 8%;
+  padding-right: 8%; }
+
+.shady-logo {
+  color: rgba(0, 0, 0, 0.6);
+  text-shadow: 0 -1px rgba(0, 0, 0, 0.2), 0 1px rgba(255, 255, 255, 0.1); }
+
+.form-copies-selector {
+  overflow: auto;
+  width: 160px;
+  margin: auto; }
+  .form-copies-selector .form-copies-less, .form-copies-selector .form-copies-more, .form-copies-selector .form-copies-input {
+    float: left;
+    color: white;
+    text-align: center;
+    font-weight: 300;
+    text-shadow: 0 1px rgba(0, 0, 0, 0.1); }
+  .form-copies-selector .form-copies-less, .form-copies-selector .form-copies-more {
+    width: 30px; }
+  .form-copies-selector .form-copies-input {
+    width: 100px; }
+    .form-copies-selector .form-copies-input input {
+      background-color: transparent;
+      font-family: Open Sans, Helvetica Neue, Helvetica, Arial, sans-serif;
+      border: none;
+      font-size: 10rem;
+      width: 100%;
+      text-align: center;
+      color: white;
+      font-weight: 300; }
+  .form-copies-selector .form-copies-less, .form-copies-selector .form-copies-more {
+    font-size: 3rem;
+    padding-top: 40px; }
+
+/**
+ * TYPOGAPHY?
+ */
+h1, h2, h3, h4, h5, h6, p {
+  color: white; }
+
+h1 {
+  font-family: Lemon, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  text-shadow: 3px 3px rgba(0, 0, 0, 0.2); }
+
+p {
+  font-size: 2rem;
+  line-height: 1.5;
+  letter-spacing: 1px;
+  font-weight: 300;
+  text-shadow: 0 1px rgba(0, 0, 0, 0.4); }
+
+/**
+ * HELPERS
+ */
+.no-top-spacer {
+  margin-top: 0 !important; }
+
+.half-top-spacer {
+  margin-top: 10px; }
+
+.top-spacer {
+  margin-top: 20px; }
+
+.no-spacer {
+  margin-bottom: 0 !important; }
+
+.half-spacer {
+  margin-bottom: 10px; }
+
+.spacer {
+  margin-bottom: 20px; }
+
+.full-width {
+  width: 100%; }
+
+.text-center {
+  text-align: center; }
+
+.strong {
+  font-weight: bold; }
+
+.em {
+  font-style: italic; }
+
+/**
+ * OLD STUFF
+ */
+#original {
+  display: block;
+  margin: 0 auto; }
+
+.filters canvas {
+  display: inline; }
+
+.hidden {
+  display: none; }
+
+input {
+  display: block;
+  margin: 0 auto; }
+
+input[type=file] {
+  margin: 400px auto; }
+
+input[type=submit] {
+  font-size: large;
+  width: 200px;
+  margin-top: 20px; }
+
+#flash {
+  margin-top: 20px;
+  text-align: center;
+  font-size: large;
+  font-family: monospace; }
+
+/*# sourceMappingURL=styles.css.map */
