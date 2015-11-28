@@ -12,6 +12,7 @@ var WebSocket = require('ws')
 var AWS = require('aws-sdk')
 var s3Stream = require('s3-upload-stream')(new AWS.S3())
 var printClient = null
+var counter = 0
 
 var app = express()
 
@@ -31,7 +32,7 @@ app.post('/*', function (req, res) {
       Bucket: "boothunit",
       ACL: "public-read",
       ContentType: "image/jpeg",
-      Key: new Date().getTime() + "_" + filename
+      Key: `${new Date().getTime()}_${counter++}.jpg`
     })
 
     upload.on('error', onError)

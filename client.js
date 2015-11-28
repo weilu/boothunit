@@ -1,8 +1,9 @@
 // I'm the print client
 
-var https = require('https')
 var fs = require('fs')
+var path = require('path')
 var WebSocket = require('ws')
+var exec = require('child_process').exec
 
 function poll() {
   var ws = new WebSocket('ws://' + process.env.WS_HOST)
@@ -13,56 +14,30 @@ function poll() {
   })
 
   ws.on('message', function(url) {
-    //TODO: validate url
-    var request = https.get(url, function(response) {
+    var filename = path.join(process.cwd(), 'uploads', decodeURIComponent(path.basename(url)))
+    var cmd = `wget "${url}" -O "${filename}"`
+    exec(cmd, function (error, stdout, stderr) {
+      if (stdout) console.log('stdout: ' + stdout)
+      if (stderr) console.error('stderr: ' + stderr)
 
-      var filename = 'uploads/' + url.substring(url.lastIndexOf('/') + 1)
-      var outStream = fs.createWriteStream(filename)
-      outStream.on('finish', function() {
-        console.log('success!')
-        //TODO: send to printer
-        //TODO: after print delete file
-        setTimeout(poll, 500)
-      })
-      outStream.on('error', function(err) {
-        console.error(err)
-      })
+      if (error) {
+        return console.error(error)
+      }
 
-      response.pipe(outStream);
+      console.log('saved file to', filename)
 
-    }).on('error', function(e) {
-      console.error(e)
+      // var cmd = "lp -d Canon_CP910 " + filename
+      // exec(cmd, function (error, stdout, stderr) {
+      //   if (stdout) console.log('stdout: ' + stdout)
+      //   if (stderr) console.error('stderr: ' + stderr)
+      //
+      //   if (error) {
+      //     return console.error(error)
+      //   }
+      // })
+
     })
   })
 }
-
-  // var dirname = path.join(__dirname, 'uploads', req.url)
-  // mkdirp(dirname, function(err) {
-  //   if(err) return onError(err)
-  //
-  //   filename = filename.replace(/\s/g, '_')
-  //   var p = path.join(dirname, new Date().getTime() + "_" + filename)
-  //   var outStream = fs.createWriteStream(p)
-  //
-  //   outStream.on('error', onError)
-  //   outStream.on('finish', onUploadSuccess)
-  //
-  //   file.pipe(outStream)
-  //
-  //   function onUploadSuccess() {
-  //     console.log('saved file to', p)
-  //     var cmd = "lp -d Canon_CP910 " + p
-  //     exec(cmd, function (error, stdout, stderr) {
-  //       if (stdout) sys.print('stdout: ' + stdout)
-  //       if (stderr) sys.print('stderr: ' + stderr)
-  //
-  //       if (error !== null) {
-  //         return onError(error)
-  //       }
-  //
-  //       res.sendStatus(200)
-  //     })
-  //   }
-  // })
 
 poll()
