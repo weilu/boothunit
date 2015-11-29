@@ -1,3 +1,6 @@
+var React = require('react')
+var ReactDOM = require('react-dom')
+
 var FILTER_HEIGHT = 300
 var FILTERS = ["lomo", "clarity", "sunrise", "crossProcess", "jarques", "pinhole", "oldBoot", "glowingSun", "hazyDays", "concentrate"]
 
