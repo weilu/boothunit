@@ -208,8 +208,10 @@ var FilterableCanvas = React.createClass({
 var FileInput = React.createClass({
   render: function() {
     return (
-      <input name="photo" type="file" accept="image/*" capture onChange={this.handleFileInput}
-      />
+      <div className="btn btn-primary">
+        <span>Get started</span>
+        <input name="photo" type="file" accept="image/*" capture onChange={this.handleFileInput} />
+      </div>
     )
   },
   handleFileInput: function(e) {
@@ -279,10 +281,14 @@ var Navigation = React.createClass({
       <div className="frame-top">
         <div className="action-bar">
           <div className="action-bar-element half-width">
-            <a className="btn full-width" href="/">Back</a>
+            <a className="btn full-width" href="/">
+              <i className="fa fa-camera"></i> Retake
+            </a>
           </div>
           <div className="action-bar-element half-width">
-            <a className="btn btn-clear full-width" href="#" onClick={this.next}>{this.props.enabled ? "Print" : "Wait"}</a>
+            <a className="btn btn-clear full-width" href="#" onClick={this.next}>
+            <i className="fa fa-print"></i> Print
+            </a>
           </div>
         </div>
       </div>
@@ -297,12 +303,12 @@ var Navigation = React.createClass({
 
 var Welcome = React.createClass({
   render: function() {
-    var baseClassName = "frame-main cater-frame-top cater-frame-bottom"
+    var baseClassName = "welcome frame-main cater-frame-bottom text-center side-padder"
     var className = this.props.enabled ? baseClassName : baseClassName + " hidden"
     return (
       <div className={className}>
+        <i className="fa fa-camera-retro shady-logo"></i>
         <div id="flash" className={this.props.flashEnabled ? "" : "hidden"}>We have sent your photo to the printer. Go pick it up!</div>
-        <i className="fa fa-camera shady-logo"></i>
         <h1>Tonight's a Great&nbsp;Night!</h1>
         <p>Let's take a physical photo for you to keep!</p>
         <FileInput onPreview={this.props.onPreview} />
