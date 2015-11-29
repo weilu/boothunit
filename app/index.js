@@ -1,5 +1,6 @@
 var React = require('react')
 var ReactDOM = require('react-dom')
+var Masonry = require('react-masonry-component')(React)
 
 var FILTER_HEIGHT = 300
 var FILTERS = ["lomo", "clarity", "sunrise", "crossProcess", "jarques", "pinhole", "oldBoot", "glowingSun", "hazyDays", "concentrate"]
@@ -305,6 +306,17 @@ var Navigation = React.createClass({
 })
 
 var Welcome = React.createClass({
+  getInitialState: function() {
+    return { photos: { keys: [] } }
+  },
+  componentDidMount: function() {
+    this.loadGallery()
+  },
+  componentWillReceiveProps: function(newProps) {
+    if (newProps.enabled && !this.props.enabled) {
+      this.loadGallery()
+    }
+  },
   render: function() {
     var baseClassName = "welcome frame-main cater-frame-bottom text-center side-padder"
     var className = this.props.enabled ? baseClassName : baseClassName + " hidden"
@@ -315,8 +327,24 @@ var Welcome = React.createClass({
         <h1>Tonight's a Great&nbsp;Night!</h1>
         <p>Let's take a physical photo for you to keep!</p>
         <FileInput onPreview={this.props.onPreview} />
+
+        <Gallery photos={this.state.photos}/>
       </div>
     )
+  },
+  loadGallery: function() {
+    var self = this
+    var xhr = new XMLHttpRequest()
+    xhr.open('GET', "/photos.json", true)
+    xhr.onload = function(e) {
+      if (this.status == 200) {
+        var photos = JSON.parse(this.responseText)
+        self.setState({photos: photos})
+      } else {
+        alert('Failed to load gallery: ' + this.status)
+      }
+    }
+    xhr.send()
   }
 })
 
@@ -351,6 +379,33 @@ var App = React.createClass({
       flashEnabled: true,
       boothUnit: {}
     })
+  }
+})
+
+var Gallery = React.createClass({
+  render: function () {
+    var urlPrefix = this.props.photos.prefix
+    var childElements = this.props.photos.keys.reverse().map(function(filename){
+      return (
+        <div className="grid-item" key={filename}>
+          <img src={urlPrefix + filename} />
+        </div>
+      )
+    })
+    var options = {
+      itemSelector: '.grid-item',
+      columnWidth: '.grid-sizer',
+      gutter: '.gutter-sizer',
+      percentPosition: true
+    }
+
+    return (
+      <Masonry className="gallery" options={options} >
+        <div className="grid-sizer"></div>
+        <div className="gutter-sizer"></div>
+        {childElements}
+      </Masonry>
+    )
   }
 })
 

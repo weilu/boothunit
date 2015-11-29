@@ -6,13 +6,38 @@ var busboy = require('connect-busboy')
 var WebSocketServer = require("ws").Server
 var WebSocket = require('ws')
 var AWS = require('aws-sdk')
-var s3Stream = require('s3-upload-stream')(new AWS.S3())
+var s3 = new AWS.S3()
+var s3Stream = require('s3-upload-stream')(s3)
 var printClient = null
+
 var counter = 0
+var BUCKET = "boothunit" //TODO: multi-tenant
+var BUCKET_URL = "https://s3-ap-southeast-1.amazonaws.com/" + BUCKET + "/"
 
 var app = express()
 
 app.use(busboy({immediate: true}))
+
+app.get('/photos.json', function(req, res, next) {
+  var allKeys = []
+  listAllKeys(null, function(err) {
+    if(err) {
+      return res.status(500).json(err)
+    }
+    res.json({ prefix: BUCKET_URL, keys: allKeys })
+  })
+
+  function listAllKeys(marker, cb) {
+    s3.listObjects({Bucket: BUCKET, Marker: marker}, function(err, data) {
+      if(err) return cb(err);
+
+      allKeys = allKeys.concat(data.Contents.map(function(file) {
+        return file.Key
+      }))
+      data.IsTruncated ? listAllKeys(data.NextMarker, cb) : cb()
+    })
+  }
+})
 
 app.get('/*', function(req, res, next) {
   if (path.extname(req.url) == '') {
@@ -25,7 +50,7 @@ app.get('/*', function(req, res, next) {
 app.post('/*', function (req, res) {
   req.busboy.on('file', function(filename, file) {
     var upload = s3Stream.upload({
-      Bucket: "boothunit",
+      Bucket: BUCKET,
       ACL: "public-read",
       ContentType: "image/jpeg",
       Key: `${new Date().getTime()}_${counter++}.jpg`
