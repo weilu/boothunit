@@ -35,7 +35,7 @@ var BoothUnit = React.createClass({
   },
   render: function() {
     return (
-      <div className={this.props.className}>
+      <div className={this.props.enabled ? "" : "hidden"}>
         <Navigation enabled={this.state.nextButtonEnabled} onSpinner={this.showSpinner}/>
         <div className="frame-main cater-frame-top cater-frame-bottom">
           <Canvas {...this.state.preview} className="original" />
@@ -297,8 +297,10 @@ var Navigation = React.createClass({
 
 var Welcome = React.createClass({
   render: function() {
+    var baseClassName = "frame-main cater-frame-top cater-frame-bottom"
+    var className = this.props.enabled ? baseClassName : baseClassName + " hidden"
     return (
-      <div className={this.props.className}>
+      <div className={className}>
         <div id="flash" className={this.props.flashEnabled ? "" : "hidden"}>We have sent your photo to the printer. Go pick it up!</div>
         <i className="fa fa-camera shady-logo"></i>
         <h1>Tonight's a Great&nbsp;Night!</h1>
@@ -312,23 +314,21 @@ var Welcome = React.createClass({
 var App = React.createClass({
   getInitialState: function() {
     return {
-      welcomeClassName: '',
-      flashEnabled: false,
-      boothUnitClassName: 'hidden'
+      welcomeEnabled: true,
+      flashEnabled: false
     }
   },
   render: function() {
     return (
     <div>
-      <Welcome className={this.state.welcomeClassName} onPreview={this.preview} flashEnabled={this.state.flashEnabled}/>
-      <BoothUnit className={this.state.boothUnitClassName} {...this.state.boothUnit} onSuccess={this.success}/>
+      <Welcome enabled={this.state.welcomeEnabled} flashEnabled={this.state.flashEnabled} onPreview={this.preview}/>
+      <BoothUnit enabled={!this.state.welcomeEnabled} {...this.state.boothUnit} onSuccess={this.success}/>
     </div>
     )
   },
   preview: function(width, height, img) {
     this.setState({
-      welcomeClassName: 'hidden',
-      boothUnitClassName: '',
+      welcomeEnabled: false,
       boothUnit: {
         width: width,
         height: height,
@@ -338,9 +338,8 @@ var App = React.createClass({
   },
   success: function() {
     this.setState({
-      welcomeClassName: '',
+      welcomeEnabled: true,
       flashEnabled: true,
-      boothUnitClassName: 'hidden',
       boothUnit: {}
     })
   }

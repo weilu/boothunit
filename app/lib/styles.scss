@@ -186,35 +186,3 @@ p {
 .strong {font-weight: bold;}
 .em {font-style: italic;}
 
-/**
- * OLD STUFF
- */
-
-#original {
-  display: block;
-  margin: 0 auto;
-}
-.filters canvas {
-  display: inline;
-}
-.hidden {
-  display: none;
-}
-input {
-  display: block;
-  margin: 0 auto;
-}
-input[type=file] {
-  margin: 400px auto;
-}
-input[type=submit] {
-  font-size: large;
-  width: 200px;
-  margin-top: 20px;
-}
-#flash {
-  margin-top: 20px;
-  text-align: center;
-  font-size: large;
-  font-family: monospace;
-}

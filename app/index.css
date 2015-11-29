@@ -18,12 +18,6 @@
 .hidden {
   display: none;
 }
-input {
-  display: block;
-}
-input[type=file] {
-  margin: 400px auto;
-}
 button {
   display: block;
   margin: 0 auto;
