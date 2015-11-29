@@ -5,36 +5,19 @@ var BoothUnit = React.createClass({
   getInitialState: function() {
     return {
       preview: {}, originalBackup: {}, previewBackup: {},
-      printButtonClassName: 'hidden',
-      flashClassName: 'hidden',
-      filtersClassName: 'filters'
+      nextButtonEnabled: false,
+      spinnerEnabled: false
     }
   },
-  render: function() {
-    var filterNodes = FILTERS.map(function(filter) {
-      return (<Filter key={filter} id={filter} data={this.state.img} onApplyFilter={this.applyFilter} />)
-    }, this)
+  componentWillReceiveProps: function(nextProps) {
+    if(nextProps.img === this.props.img || !nextProps.img) return;
 
-    return (
-      <div>
-        <FileInput onPreview={this.preview} />
-        <Canvas {...this.state.preview} className="original" />
-        <FilterableCanvas {...this.state.originalBackup} className="hidden" id="upload" onApplyFilterDone={this.uploadAndPrint} />
-        <FilterableCanvas {...this.state.previewBackup} className="hidden" id="tmp" onApplyFilterDone={this.updatePreview} />
-        <button className={this.state.printButtonClassName} onClick={this.beforePrint}>print</button>
-        <div id="flash" className={this.state.flashClassName}>We have sent your photo to the printer. Go pick it up!</div>
-        <div className={this.state.filtersClassName}>
-          {filterNodes}
-        </div>
-      </div>
-    )
-  },
-  preview: function(width, height, img) {
+    var img = nextProps.img
     this.setState({
       img: img,
       preview: {
-        width: width,
-        height: height,
+        width: nextProps.width,
+        height: nextProps.height,
         img: img
       },
       originalBackup: {
@@ -43,12 +26,26 @@ var BoothUnit = React.createClass({
         img: img
       },
       previewBackup: {
-        width: width,
-        height: height,
+        width: nextProps.width,
+        height: nextProps.height,
         img: img
       },
-      printButtonClassName: ''
+      nextButtonEnabled: true
     })
+  },
+  render: function() {
+    return (
+      <div className={this.props.className}>
+        <Navigation enabled={this.state.nextButtonEnabled} onSpinner={this.showSpinner}/>
+        <div className="frame-main cater-frame-top cater-frame-bottom">
+          <Canvas {...this.state.preview} className="original" />
+          <FilterableCanvas {...this.state.originalBackup} className="hidden" id="upload" onApplyFilterDone={this.uploadAndPrint} />
+          <FilterableCanvas {...this.state.previewBackup} className="hidden" id="tmp" onApplyFilterDone={this.updatePreview} />
+          <FilterList enabled={!this.state.spinnerEnabled} img={this.state.img} onApplyFilter={this.applyFilter}/>
+          <Spinner enabled={this.state.spinnerEnabled} />
+        </div>
+      </div>
+    )
   },
   applyFilter: function(filter) {
     this.filter = filter
@@ -67,12 +64,13 @@ var BoothUnit = React.createClass({
     })
     //TODO: watermark
   },
-  beforePrint: function() {
+  showSpinner: function() {
     var filter = this.filter
-    if (!filter) {
-      filter = 'original'
-    }
+    if (!filter) { filter = 'original' }
+
     this.setState({
+      spinnerEnabled: true,
+      nextButtonEnabled: false,
       originalBackup: {
         filter: filter
       }
@@ -90,18 +88,32 @@ var BoothUnit = React.createClass({
     xhr.open('POST', document.location.pathname, true)
     xhr.onload = function(e) {
       if (this.status == 200) {
-        self.setState({
-          printButtonClassName: 'hidden',
-          flashClassName: '',
-          filtersClassName: 'filters hidden'
-        })
+        self.props.onSuccess()
       } else {
         alert('Failed to upload photo. ' + this.status)
+        self.setState({
+          spinnerEnabled: false,
+          nextButtonEnabled: true
+        })
       }
     }
     xhr.send(formData)
 
     this.filter = null
+  }
+})
+
+var FilterList = React.createClass({
+  render: function() {
+    var filterNodes = FILTERS.map(function(filter) {
+      return (<Filter key={filter} id={filter} data={this.props.img} onApplyFilter={this.props.onApplyFilter} />)
+    }, this)
+
+    return (
+      <div className={this.props.enabled ? "filters" : "filters hidden"}>
+        {filterNodes}
+      </div>
+    )
   }
 })
 
@@ -164,9 +176,7 @@ var CanvasMixin = {
 
 var Canvas = React.createClass({
   mixins: [CanvasMixin],
-  onFilter: function() {
-    //no-op
-  }
+  onFilter: function() {}
 })
 
 var FilterableCanvas = React.createClass({
@@ -196,15 +206,9 @@ var FilterableCanvas = React.createClass({
 })
 
 var FileInput = React.createClass({
-  getInitialState: function() {
-    return {visibility: ''}
-  },
   render: function() {
     return (
-      <input
-        name="photo" type="file" accept="image/*" capture
-        onChange={this.handleFileInput}
-        className={this.state.visibility}
+      <input name="photo" type="file" accept="image/*" capture onChange={this.handleFileInput}
       />
     )
   },
@@ -231,7 +235,6 @@ var FileInput = React.createClass({
         }
 
         self.props.onPreview(width, height, img)
-        self.setState({visibility: 'hidden'})
       }, options)
     })
   }
@@ -256,8 +259,94 @@ function dataURItoBlob(dataURI) {
   return new Blob([ab], {type: mimeString});
 }
 
+var Spinner = React.createClass({
+  render: function() {
+    return (
+      <div className={this.props.enabled ? "" : "hidden"}>
+        <div id="spinner">
+         <div className="rabbit"></div>
+         <div className="clouds"></div>
+        </div>
+        <p className="words">Working on it...</p>
+      </div>
+    )
+   }
+})
+
+var Navigation = React.createClass({
+  render: function() {
+    return (
+      <div className="frame-top">
+        <div className="action-bar">
+          <div className="action-bar-element half-width">
+            <a className="btn full-width" href="/">Back</a>
+          </div>
+          <div className="action-bar-element half-width">
+            <a className="btn btn-clear full-width" href="#" onClick={this.next}>{this.props.enabled ? "Print" : "Wait"}</a>
+          </div>
+        </div>
+      </div>
+    )
+  },
+  next: function() {
+    if (this.props.enabled) { // prevent double upload
+      this.props.onSpinner()
+    }
+  }
+})
+
+var Welcome = React.createClass({
+  render: function() {
+    return (
+      <div className={this.props.className}>
+        <div id="flash" className={this.props.flashEnabled ? "" : "hidden"}>We have sent your photo to the printer. Go pick it up!</div>
+        <i className="fa fa-camera shady-logo"></i>
+        <h1>Tonight's a Great&nbsp;Night!</h1>
+        <p>Let's take a physical photo for you to keep!</p>
+        <FileInput onPreview={this.props.onPreview} />
+      </div>
+    )
+  }
+})
+
+var App = React.createClass({
+  getInitialState: function() {
+    return {
+      welcomeClassName: '',
+      flashEnabled: false,
+      boothUnitClassName: 'hidden'
+    }
+  },
+  render: function() {
+    return (
+    <div>
+      <Welcome className={this.state.welcomeClassName} onPreview={this.preview} flashEnabled={this.state.flashEnabled}/>
+      <BoothUnit className={this.state.boothUnitClassName} {...this.state.boothUnit} onSuccess={this.success}/>
+    </div>
+    )
+  },
+  preview: function(width, height, img) {
+    this.setState({
+      welcomeClassName: 'hidden',
+      boothUnitClassName: '',
+      boothUnit: {
+        width: width,
+        height: height,
+        img: img
+      }
+    })
+  },
+  success: function() {
+    this.setState({
+      welcomeClassName: '',
+      flashEnabled: true,
+      boothUnitClassName: 'hidden',
+      boothUnit: {}
+    })
+  }
+})
+
 ReactDOM.render(
-  <BoothUnit />,
+  <App />,
   document.getElementById('content')
 )
-

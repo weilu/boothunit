@@ -37,3 +37,10 @@ button {
   font-size: large;
   font-family: monospace;
 }
+i.fa-camera {
+  font-size: 14rem;
+}
+.action-bar-element.half-width {
+  width: 50%;
+}
+
