@@ -17,10 +17,7 @@ var BoothUnit = React.createClass({
 
     return (
       <div>
-        <form id="booth" method="post" enctype="multipart/form-data">
-          <FileInput onPreview={this.preview} />
-          <input name="name" type="hidden" />
-        </form>
+        <FileInput onPreview={this.preview} />
         <Canvas {...this.state.preview} className="original" />
         <FilterableCanvas {...this.state.originalBackup} className="hidden" id="upload" onApplyFilterDone={this.uploadAndPrint} />
         <FilterableCanvas {...this.state.previewBackup} className="hidden" id="tmp" onApplyFilterDone={this.updatePreview} />
