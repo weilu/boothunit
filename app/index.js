@@ -223,13 +223,31 @@ var FileInput = React.createClass({
     var self = this
 
     loadImage.parseMetaData(file, function (data) {
-      var options = { canvas: true }
+      var options = {
+        canvas: true,
+        cover: true,
+        crop: true
+      }
+
+      var isLandscape;
       if (data.exif) {
         options.orientation = data.exif.get('Orientation')
+        // Printouts must be 4x6 or 6x4, so check whether it's portrait or landscape. If anything fails or is undefined, or photo is a square, then this flag will be falsy and printout will default to portrait.
+        isLandscape = parseInt(data.exif.get('PixelXDimension') || 0) > parseInt(data.exif.get('PixelYDimension') || 0);
+      }
+
+      // 1800 & 1200 because 6" x 4" x 300dpi
+      if (isLandscape) {
+        options.aspectRatio = 3/2
+        options.maxWidth = 1800
+        options.maxHeight = 1200
+      } else {
+        options.aspectRatio = 2/3
+        options.maxWidth = 1200
+        options.maxHeight = 1800
       }
 
       loadImage(file, function(img){
-        img = loadImage.scale(img, { maxWidth: 1200, maxHeight: 1200 })
 
         var height = window.innerHeight - FILTER_HEIGHT - 100
         var width = 1.0 * img.width * height / img.height
