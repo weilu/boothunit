@@ -26,16 +26,19 @@ function poll() {
 
       console.log('saved file to', filename)
 
-      // var cmd = "lp -d Canon_CP910 " + filename
-      // exec(cmd, function (error, stdout, stderr) {
-      //   if (stdout) console.log('stdout: ' + stdout)
-      //   if (stderr) console.error('stderr: ' + stderr)
-      //
-      //   if (error) {
-      //     return console.error(error)
-      //   }
-      // })
+      if (process.env.DRYRUN) {
+        return console.log('Dry run only. Not sending to printer')
+      }
 
+      var cmd = "lp -d Canon_CP910 " + filename
+      exec(cmd, function (error, stdout, stderr) {
+        if (stdout) console.log('stdout: ' + stdout)
+        if (stderr) console.error('stderr: ' + stderr)
+
+        if (error) {
+          return console.error(error)
+        }
+      })
     })
   })
 }
