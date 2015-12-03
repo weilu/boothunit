@@ -105,6 +105,8 @@ wss.on("connection", function(ws) {
       return ws.close()
     }
 
+    if (printClient) return; // client already assigned
+
     printClient = ws
     printClient.on('error', function(err) { console.log(err) })
     printClient.on('finish', function() { console.log('success!') })
