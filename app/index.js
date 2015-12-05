@@ -5,6 +5,24 @@ var Masonry = require('react-masonry-component')(React)
 var FILTER_HEIGHT = 0.2 * window.innerHeight;
 var FILTERS = ["lomo", "clarity", "sunrise", "crossProcess", "jarques", "pinhole", "oldBoot", "glowingSun", "hazyDays", "concentrate"]
 
+/* Welcome to global-land =( */
+var global = {}
+window.onresize = function () {
+  if (!global.fileInputReference || !global.imgReference) return;
+  var img = global.imgReference
+  var height = window.innerHeight - FILTER_HEIGHT - 52
+  var width = 1.0 * img.width * height / img.height
+
+  // shrink the image to fit viewport width
+  if (width > window.innerWidth) {
+    width = window.innerWidth
+    height = window.innerWidth * img.height / img.width
+  }
+
+  global.forcePreviewResize = true
+  global.fileInputReference.props.onPreview(width, height, img)
+}
+
 var BoothUnit = React.createClass({
   getInitialState: function() {
     return {
@@ -14,7 +32,10 @@ var BoothUnit = React.createClass({
     }
   },
   componentWillReceiveProps: function(nextProps) {
-    if(nextProps.img === this.props.img || !nextProps.img) return;
+    if (!global.forcePreviewResize) {
+      if(nextProps.img === this.props.img || !nextProps.img) return;
+    }
+    global.forcePreviewResize = false;
 
     var img = nextProps.img
     this.setState({
@@ -221,6 +242,7 @@ var FileInput = React.createClass({
   handleFileInput: function(e) {
     var file = e.target.files[0]
     var self = this
+    global.fileInputReference = this // =(
 
     loadImage.parseMetaData(file, function (data) {
       var options = {
@@ -254,6 +276,8 @@ var FileInput = React.createClass({
       }
 
       loadImage(file, function(img){
+
+        global.imgReference = img; // =(
 
         var height = window.innerHeight - FILTER_HEIGHT - 52
         var width = 1.0 * img.width * height / img.height
