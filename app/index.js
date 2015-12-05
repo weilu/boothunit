@@ -27,12 +27,13 @@ var BoothUnit = React.createClass({
       originalBackup: {
         width: img.width,
         height: img.height,
-        img: img
+        img: img,
+        forceUpdate: 0
       },
       previewBackup: {
         width: nextProps.width,
         height: nextProps.height,
-        img: img
+        img: img,
       },
       nextButtonEnabled: true
     })
@@ -44,7 +45,7 @@ var BoothUnit = React.createClass({
         <div className="frame-main cater-frame-top cater-frame-bottom">
           <Canvas {...this.state.preview} className="original" />
           <FilterableCanvas {...this.state.originalBackup} className="hidden" id="upload" onApplyFilterDone={this.uploadAndPrint} />
-          <FilterableCanvas {...this.state.previewBackup} className="hidden" id="tmp" onApplyFilterDone={this.updatePreview} />
+          <FilterableCanvas {...this.state.previewBackup} className="hidden" id="tmp" onApplyFilterDone={this.updatePreview} forceUpdate='0' />
           <FilterList enabled={!this.state.spinnerEnabled} img={this.state.img} onApplyFilter={this.applyFilter}/>
           <Spinner enabled={this.state.spinnerEnabled} />
         </div>
@@ -76,7 +77,8 @@ var BoothUnit = React.createClass({
       spinnerEnabled: true,
       nextButtonEnabled: false,
       originalBackup: {
-        filter: filter
+        filter: filter,
+        forceUpdate: this.state.originalBackup.forceUpdate++
       }
     })
     //TODO: watermark
@@ -91,14 +93,14 @@ var BoothUnit = React.createClass({
     formData.append('photo.jpg', blob)
     xhr.open('POST', document.location.pathname, true)
     xhr.onload = function(e) {
+      self.setState({
+        spinnerEnabled: false,
+        nextButtonEnabled: true
+      })
       if (this.status == 200) {
         self.props.onSuccess()
       } else {
         alert('Failed to upload photo. ' + this.status)
-        self.setState({
-          spinnerEnabled: false,
-          nextButtonEnabled: true
-        })
       }
     }
     xhr.send(formData)
@@ -174,7 +176,7 @@ var CanvasMixin = {
     }
   },
   render: function() {
-    return (<canvas id={this.props.id} className={this.props.className}></canvas>)
+    return (<canvas id={this.props.id} className={this.props.className} forceUpdate={this.props.forceUpdate}></canvas>)
   }
 }
 
@@ -340,8 +342,8 @@ var Welcome = React.createClass({
     var className = this.props.enabled ? baseClassName : baseClassName + " hidden"
     return (
       <div className={className}>
-        <i className="fa fa-camera-retro shady-logo"></i>
         <div id="flash" className={this.props.flashEnabled ? "" : "hidden"}>We have sent your photo to the printer. Go pick it up!</div>
+        <i className="fa fa-camera-retro shady-logo"></i>
         <h1>Tonight's a Great&nbsp;Night!</h1>
         <p>Let's take a physical photo for you to keep!</p>
         <FileInput onPreview={this.props.onPreview} />

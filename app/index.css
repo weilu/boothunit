@@ -29,7 +29,8 @@ button {
   margin-top: 20px;
   text-align: center;
   font-size: large;
-  font-family: monospace;
+  color: white;
+  margin-bottom: 20px;
 }
 i.fa-camera-retro {
   font-size: 14rem;
