@@ -6,14 +6,23 @@ var WebSocket = require('ws')
 var exec = require('child_process').exec
 
 var ws = new WebSocket('ws://' + process.env.WS_HOST)
+var timeoutID = null
 
 ws.on('open', function() {
   console.log('ws open')
-  setInterval(heartbeat, 1000 * 50) // heroku times out at 60 second
+  heartbeat()
+})
+
+ws.on('close', function() {
+  console.log('server closed connection. Exiting')
+  if(timeoutID) {
+    clearTimeout(timeoutID)
+  }
 })
 
 function heartbeat() {
   ws.send(process.env.SECRET)
+  timeoutID = setTimeout(heartbeat, 1000 * 50) // heroku times out at 60 second
 }
 
 ws.on('message', function(url) {
