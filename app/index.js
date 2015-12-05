@@ -2,7 +2,7 @@ var React = require('react')
 var ReactDOM = require('react-dom')
 var Masonry = require('react-masonry-component')(React)
 
-var FILTER_HEIGHT = 300
+var FILTER_HEIGHT = 0.2 * window.innerHeight;
 var FILTERS = ["lomo", "clarity", "sunrise", "crossProcess", "jarques", "pinhole", "oldBoot", "glowingSun", "hazyDays", "concentrate"]
 
 var BoothUnit = React.createClass({
@@ -255,7 +255,7 @@ var FileInput = React.createClass({
 
       loadImage(file, function(img){
 
-        var height = window.innerHeight - FILTER_HEIGHT - 100
+        var height = window.innerHeight - FILTER_HEIGHT - 52
         var width = 1.0 * img.width * height / img.height
 
         // shrink the image to fit viewport width
