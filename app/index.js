@@ -2,16 +2,29 @@ var React = require('react')
 var ReactDOM = require('react-dom')
 var Masonry = require('react-masonry-component')(React)
 
-var FILTER_HEIGHT = 300
 var FILTERS = ["lomo", "clarity", "sunrise", "crossProcess", "jarques", "pinhole", "oldBoot", "glowingSun", "hazyDays", "concentrate"]
+var HEADER_HEIGHT = 52;
 
 var BoothUnit = React.createClass({
   getInitialState: function() {
     return {
       preview: {}, originalBackup: {}, previewBackup: {},
       nextButtonEnabled: false,
-      spinnerEnabled: false
+      spinnerEnabled: false,
+      filterHeight: 0.2 * window.innerHeight,
+      previewHeight: 0
     }
+  },
+  componentDidMount: function() {
+    window.addEventListener('resize', this.handleResize)
+  },
+  handleResize: function(e) {
+    if (!this.state.img) return;
+    var size = getPreviewSize(this.state.img)
+    this.setState({filterHeight: 0.2 * window.innerHeight, previewHeight: size[1]})
+  },
+  componentWillUnmount: function() {
+    window.removeEventListener('resize', this.handleResize);
   },
   componentWillReceiveProps: function(nextProps) {
     if(nextProps.img === this.props.img || !nextProps.img) return;
@@ -35,7 +48,8 @@ var BoothUnit = React.createClass({
         height: nextProps.height,
         img: img,
       },
-      nextButtonEnabled: true
+      nextButtonEnabled: true,
+      previewHeight: nextProps.height
     })
   },
   render: function() {
@@ -43,10 +57,10 @@ var BoothUnit = React.createClass({
       <div className={this.props.enabled ? "" : "hidden"}>
         <Navigation enabled={this.state.nextButtonEnabled} onSpinner={this.showSpinner}/>
         <div className="frame-main cater-frame-top cater-frame-bottom">
-          <Canvas {...this.state.preview} className="original" />
+          <Canvas {...this.state.preview} cssHeight={this.state.previewHeight} className="original" />
           <FilterableCanvas {...this.state.originalBackup} className="hidden" id="upload" onApplyFilterDone={this.uploadAndPrint} />
-          <FilterableCanvas {...this.state.previewBackup} className="hidden" id="tmp" onApplyFilterDone={this.updatePreview} forceUpdate='0' />
-          <FilterList enabled={!this.state.spinnerEnabled} img={this.state.img} onApplyFilter={this.applyFilter}/>
+          <FilterableCanvas {...this.state.previewBackup} className="hidden" id="tmp" onApplyFilterDone={this.updatePreview} forceUpdate='0'/>
+          <FilterList enabled={!this.state.spinnerEnabled} img={this.state.img} filterHeight={this.state.filterHeight} onApplyFilter={this.applyFilter}/>
           <Spinner enabled={this.state.spinnerEnabled} />
         </div>
       </div>
@@ -112,7 +126,7 @@ var BoothUnit = React.createClass({
 var FilterList = React.createClass({
   render: function() {
     var filterNodes = FILTERS.map(function(filter) {
-      return (<Filter key={filter} id={filter} data={this.props.img} onApplyFilter={this.props.onApplyFilter} />)
+      return (<Filter key={filter} id={filter} data={this.props.img} filterHeight={this.props.filterHeight} onApplyFilter={this.props.onApplyFilter} />)
     }, this)
 
     return (
@@ -124,13 +138,15 @@ var FilterList = React.createClass({
 })
 
 var Filter = React.createClass({
-  shouldComponentUpdate: function(props, state) {
-    return this.props.data !== props.data
+  getInitialState: function() {
+    return { filterDrawn: false }
   },
   componentDidUpdate: function() {
+    if (!this.props.data || this.state.filterDrawn) return
+
     var el = ReactDOM.findDOMNode(this)
     var ctx = el.getContext('2d')
-    var width = FILTER_HEIGHT
+    var width = this.props.filterHeight
     el.width = width
     el.height = width
 
@@ -151,9 +167,15 @@ var Filter = React.createClass({
       this.reloadCanvasData() // necessary if user replaces the current photo
       this[el.id]().render()
     })
+
+    this.setState({filterDrawn: true})
   },
   render: function() {
-    return (<canvas id={this.props.id} onClick={this.onClick}></canvas>)
+    return (<canvas
+              id={this.props.id}
+              style={{height: this.props.filterHeight + "px", width: this.props.filterHeight + "px"}}
+              onClick={this.onClick}
+            ></canvas>)
   },
   onClick: function() {
     this.props.onApplyFilter(this.props.id)
@@ -176,7 +198,12 @@ var CanvasMixin = {
     }
   },
   render: function() {
-    return (<canvas id={this.props.id} className={this.props.className} forceUpdate={this.props.forceUpdate}></canvas>)
+    return (<canvas
+              id={this.props.id}
+              className={this.props.className}
+              forceUpdate={this.props.forceUpdate}
+              style={{height: this.props.cssHeight + "px"}}
+            ></canvas>)
   }
 }
 
@@ -227,44 +254,52 @@ var FileInput = React.createClass({
     loadImage.parseMetaData(file, function (data) {
       var options = {
         canvas: true,
-        cover: true,
-        crop: true
-      }
-
-      var isLandscape;
-      if (data.exif) {
-        options.orientation = data.exif.get('Orientation')
-        // Printouts must be 4x6 or 6x4, so check whether it's portrait or landscape. If anything fails or is undefined, or photo is a square, then this flag will be falsy and printout will default to portrait.
-        isLandscape = parseInt(data.exif.get('PixelXDimension') || 0) > parseInt(data.exif.get('PixelYDimension') || 0);
-      }
-
-      // 1800 & 1200 because 6" x 4" x 300dpi
-      if (isLandscape) {
-        options.aspectRatio = 3/2
-        options.maxWidth = 1800
-        options.maxHeight = 1200
-      } else {
-        options.aspectRatio = 2/3
-        options.maxWidth = 1200
-        options.maxHeight = 1800
+        cover: true
       }
 
       loadImage(file, function(img){
-
-        var height = window.innerHeight - FILTER_HEIGHT - 100
-        var width = 1.0 * img.width * height / img.height
-
-        // shrink the image to fit viewport width
-        if (width > window.innerWidth) {
-          width = window.innerWidth
-          height = window.innerWidth * img.height / img.width
+        var croppedHeight = img.height
+        var croppedWidth = img.width
+        var x = 0
+        var y = 0
+        // img.height = 1.0 * img.height // int to float
+        if (img.height / img.width < 2/3) {
+          croppedWidth = img.height * 3 / 2
+        } else if (img.height / img.width < 1) {
+          croppedHeight = img.width * 2 / 3
+        } else if (img.height / img.width < 3/2) {
+          croppedWidth = img.height * 2 / 3
+        } else {
+          croppedHeight = img.width * 3 / 2
         }
+        x = (img.width - croppedWidth) / 2
+        y = (img.height - croppedHeight) / 2
 
-        self.props.onPreview(width, height, img)
+        // crop the original image to 2/3 or 3/2
+        var croppedImg = document.createElement('canvas')
+        croppedImg.width = croppedWidth
+        croppedImg.height = croppedHeight
+        var backCtx = croppedImg.getContext('2d')
+        backCtx.drawImage(img, x, y, croppedWidth, croppedHeight, 0, 0, croppedWidth, croppedHeight)
+        croppedImg.className = 'hidden'
+        document.body.appendChild(croppedImg)
+
+        var size = getPreviewSize(croppedImg)
+        self.props.onPreview(size[0], size[1], croppedImg)
       }, options)
     })
   }
 })
+
+function getPreviewSize(croppedImg) {
+  var height = 0.8 * window.innerHeight - HEADER_HEIGHT
+  var width = 1.0 * height * croppedImg.width / croppedImg.height
+  if (width > window.innerWidth) { // shrink the image to fit viewport width
+    width = window.innerWidth
+    height = window.innerWidth * croppedImg.height / croppedImg.width
+  }
+  return [width, height]
+}
 
 function dataURItoBlob(dataURI) {
   // convert base64 to raw binary data held in a string
