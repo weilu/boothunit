@@ -252,9 +252,9 @@ var FileInput = React.createClass({
     var self = this
 
     loadImage.parseMetaData(file, function (data) {
-      var options = {
-        canvas: true,
-        cover: true
+      var options = { canvas: true }
+      if (data.exif) {
+        options.orientation = data.exif.get('Orientation')
       }
 
       loadImage(file, function(img){
