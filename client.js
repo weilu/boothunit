@@ -25,9 +25,10 @@ function heartbeat() {
   timeoutID = setTimeout(heartbeat, 1000 * 50) // heroku times out at 60 second
 }
 
-ws.on('message', function(url) {
-  var filename = path.join(process.cwd(), 'uploads', decodeURIComponent(path.basename(url)))
-  var cmd = `wget "${url}" -O "${filename}"`
+ws.on('message', function(msg) {
+  var payload = JSON.parse(msg)
+  var filename = path.join(process.cwd(), 'uploads', decodeURIComponent(path.basename(payload.url)))
+  var cmd = `wget "${payload.url}" -O "${filename}"`
   exec(cmd, function (error, stdout, stderr) {
     if (stdout) console.log('stdout: ' + stdout)
     if (stderr) console.error('stderr: ' + stderr)
@@ -38,11 +39,11 @@ ws.on('message', function(url) {
 
     console.log('saved file to', filename)
 
+    var cmd = "lp -d Canon_CP910 " + filename + " -n " + payload.copies
     if (process.env.DRYRUN) {
-      return console.log('Dry run only. Not sending to printer')
+      return console.log('Dry run only. Not sending to printer. cmd:', cmd)
     }
 
-    var cmd = "lp -d Canon_CP910 " + filename
     exec(cmd, function (error, stdout, stderr) {
       if (stdout) console.log('stdout: ' + stdout)
       if (stderr) console.error('stderr: ' + stderr)

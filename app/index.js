@@ -111,7 +111,8 @@ var BoothUnit = React.createClass({
     var formData = new FormData()
     var blob = dataURItoBlob(base64Data)
     formData.append('photo.jpg', blob)
-    xhr.open('POST', document.location.pathname+'?copies='+copies, true) // Append copies as a query parameter, to avoid having to mess with formdata/busboy/body.
+    formData.append('copies', copies)
+    xhr.open('POST', document.location.pathname, true)
     xhr.onload = function(e) {
       self.setState({
         spinnerEnabled: false,
