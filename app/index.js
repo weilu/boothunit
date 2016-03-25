@@ -101,11 +101,17 @@ var BoothUnit = React.createClass({
     var self = this
     var base64Data = filteredImg.toDataURL("image/jpeg", 1)
 
+    var copies = parseInt(prompt('How many copies? (Default 1, Max. 5)'));
+
+    if (!copies) copies = 1;
+    copies = Math.min(copies, 10); // Say the max is 5, but actually allow up to 10.
+    copies = Math.max(copies, 1);
+
     var xhr = new XMLHttpRequest()
     var formData = new FormData()
     var blob = dataURItoBlob(base64Data)
     formData.append('photo.jpg', blob)
-    xhr.open('POST', document.location.pathname, true)
+    xhr.open('POST', document.location.pathname+'?copies='+copies, true) // Append copies as a query parameter, to avoid having to mess with formdata/busboy/body.
     xhr.onload = function(e) {
       self.setState({
         spinnerEnabled: false,

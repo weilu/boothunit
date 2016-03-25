@@ -48,6 +48,8 @@ app.get('/*', function(req, res, next) {
 })
 
 app.post('/*', function (req, res) {
+  var copies = parseInt(req.query.copies) || 1;
+  console.log('Copies to print: '+copies);
   req.busboy.on('file', function(filename, file) {
     var upload = s3Stream.upload({
       Bucket: BUCKET,
@@ -71,6 +73,7 @@ app.post('/*', function (req, res) {
         console.error('Are you sure the print client is running?')
         return res.sendStatus(500)
       }
+      // TODO: notify print client of number of copies
       printClient.send(details.Location)
       // notify client
       res.sendStatus(200)
