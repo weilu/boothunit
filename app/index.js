@@ -7,12 +7,15 @@ var HEADER_HEIGHT = 52;
 
 var BoothUnit = React.createClass({
   getInitialState: function() {
+    var watermark = new Image()
+    watermark.src = "assets/watermark.png"
     return {
       preview: {}, originalBackup: {}, previewBackup: {},
       nextButtonEnabled: false,
       spinnerEnabled: false,
       filterHeight: 0.2 * window.innerHeight,
-      previewHeight: 0
+      previewHeight: 0,
+      watermark: watermark
     }
   },
   componentDidMount: function() {
@@ -57,9 +60,9 @@ var BoothUnit = React.createClass({
       <div className={this.props.enabled ? "" : "hidden"}>
         <Navigation enabled={this.state.nextButtonEnabled} onSpinner={this.showSpinner}/>
         <div className="frame-main cater-frame-top cater-frame-bottom">
-          <Canvas {...this.state.preview} cssHeight={this.state.previewHeight} className="original" />
-          <FilterableCanvas {...this.state.originalBackup} className="hidden" id="upload" onApplyFilterDone={this.uploadAndPrint} />
-          <FilterableCanvas {...this.state.previewBackup} className="hidden" id="tmp" onApplyFilterDone={this.updatePreview} forceUpdate='0'/>
+          <Canvas {...this.state.preview} watermark={this.state.watermark} cssHeight={this.state.previewHeight} className="original" />
+          <FilterableCanvas {...this.state.originalBackup} watermark={this.state.watermark} className="hidden" id="upload" onApplyFilterDone={this.uploadAndPrint} />
+          <FilterableCanvas {...this.state.previewBackup} watermark={this.state.watermark} className="hidden" id="tmp" onApplyFilterDone={this.updatePreview} forceUpdate='0'/>
           <FilterList enabled={!this.state.spinnerEnabled} img={this.state.img} filterHeight={this.state.filterHeight} onApplyFilter={this.applyFilter}/>
           <Spinner enabled={this.state.spinnerEnabled} />
         </div>
@@ -81,7 +84,6 @@ var BoothUnit = React.createClass({
     this.setState({
       preview: preview
     })
-    //TODO: watermark
   },
   showSpinner: function() {
     var filter = this.filter
@@ -95,7 +97,6 @@ var BoothUnit = React.createClass({
         forceUpdate: this.state.originalBackup.forceUpdate++
       }
     })
-    //TODO: watermark
   },
   uploadAndPrint: function(filteredImg) {
     var self = this
@@ -201,6 +202,18 @@ var CanvasMixin = {
 
       var context = el.getContext('2d')
       context.drawImage(props.img, 0, 0, props.width, props.height)
+
+      // watermark
+      if (props.watermark) {
+        var watermarkWidth = Math.min(props.width, props.height) / 3.0
+        var watermarkHeight = watermarkWidth / 5.42 //TODO: stop hardcoding
+        var padding = 20
+        context.drawImage(props.watermark,
+                          props.width - watermarkWidth - padding,
+                          props.height - watermarkHeight - padding,
+                          watermarkWidth, watermarkHeight)
+      }
+
       context.save()
     }
   },
