@@ -78,10 +78,14 @@ app.post('/*', function (req, res) {
         console.error('Are you sure the print client is running?')
         return res.sendStatus(500)
       }
-      printClient.send(JSON.stringify({
-        url: details.Location, copies: copies
-      }))
-      // notify client
+      try {
+        printClient.send(JSON.stringify({
+          url: details.Location, copies: copies
+        }))
+      } catch(e) {
+        console.error(e)
+        res.sendStatus(500)
+      }
       res.sendStatus(200)
     })
 
