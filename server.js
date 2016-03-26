@@ -71,22 +71,29 @@ app.post('/*', function (req, res) {
 
     // success
     upload.on('uploaded', function (details) {
-      console.log(details);
-      console.log('Copies to print: '+ copies);
-      // print
-      if (printClient == null) {
-        console.error('Are you sure the print client is running?')
-        return res.sendStatus(500)
-      }
       try {
+        console.log(details);
+        console.log('Copies to print: '+ copies);
+
+        // print
+        if (printClient == null) {
+          throw new Error('Are you sure the print client is running?')
+        }
+
         printClient.send(JSON.stringify({
           url: details.Location, copies: copies
         }))
-      } catch(e) {
+      } catch (e) {
         console.error(e)
-        res.sendStatus(500)
+        return res.sendStatus(500)
       }
-      res.sendStatus(200)
+
+      // catch send error separately because can't send response twice
+      try {
+        res.sendStatus(200)
+      } catch (e) {
+        console.error(e)
+      }
     })
 
     file.pipe(upload)
