@@ -207,7 +207,7 @@ var CanvasMixin = {
       if (props.watermark) {
         var watermarkWidth = Math.min(props.width, props.height) / 3.0
         var watermarkHeight = watermarkWidth / 5.42 //TODO: stop hardcoding
-        var padding = 20
+        var padding = watermarkHeight
         context.drawImage(props.watermark,
                           props.width - watermarkWidth - padding,
                           props.height - watermarkHeight - padding,
