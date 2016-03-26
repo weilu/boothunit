@@ -397,7 +397,6 @@ var Welcome = React.createClass({
     var className = this.props.enabled ? baseClassName : baseClassName + " hidden"
     return (
       <div className={className}>
-        <div id="flash" className={this.props.flashEnabled ? "" : "hidden"}>We have sent your photo to the printer. Go pick it up!</div>
         <i className="fa fa-camera-retro shady-logo"></i>
         <h1>Tonight's a Great&nbsp;Night!</h1>
         <p>Let's take a physical photo for you to keep!</p>
@@ -417,6 +416,11 @@ var Welcome = React.createClass({
         self.setState({photos: photos})
       } else {
         alert('Failed to load gallery: ' + this.status)
+      }
+
+      // show flash message
+      if (self.props.flashEnabled) {
+        window.alert("We have sent your photo to the printer. Go pick it up!")
       }
     }
     xhr.send()
